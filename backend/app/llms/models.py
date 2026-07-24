@@ -23,14 +23,15 @@ class FinishReason(str, Enum):
     LENGTH = "length"
     TOOL_CALL = "tool_call"
     CONTENT_FILTER = "content_filter"
+    ERROR = "error"
 
 
 class LLMProviderType(str, Enum):
+    GROQ = "groq"
     OPENAI = "openai"
     GEMINI = "gemini"
     ANTHROPIC = "anthropic"
     OLLAMA = "ollama"
-
 
 class Message(BaseModel):
     role: MessageRole

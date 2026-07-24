@@ -1,4 +1,4 @@
-from backend.app.llms.interfaces import LLMProvider
+from backend.app.llms.interfaces import BaseLLMProvider
 from backend.app.llms.models import LLMRequest, LLMResponse
 
 
@@ -17,7 +17,7 @@ class LLMService:
 
     def __init__(
         self,
-        provider: LLMProvider,
+        provider: BaseLLMProvider,
     ) -> None:
         self._provider = provider
 

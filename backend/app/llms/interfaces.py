@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from backend.app.llms.models import LLMRequest, LLMResponse
 
 
-class LLMProvider(ABC):
+class BaseLLMProvider(ABC):
     """
     Interface implemented by every LLM provider.
     """
