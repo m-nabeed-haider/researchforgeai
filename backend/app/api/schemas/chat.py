@@ -1,8 +1,10 @@
 from pydantic import BaseModel
 
+from backend.app.ai.llms.models import Message
+
 
 class ChatRequest(BaseModel):
-    message: str
+    messages: list[Message]
 
 
 class ChatResponse(BaseModel):

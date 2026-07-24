@@ -3,7 +3,7 @@ import requests
 
 class BackendClient:
     """
-    Client for communicating with ResearchForge backend.
+    Client for communicating with the ResearchForge backend.
     """
 
     def __init__(
@@ -14,13 +14,13 @@ class BackendClient:
 
     def chat(
         self,
-        message: str,
+        messages: list[dict[str, str]],
     ) -> str:
 
         response = requests.post(
             f"{self.base_url}/chat",
             json={
-                "message": message,
+                "messages": messages,
             },
             timeout=60,
         )

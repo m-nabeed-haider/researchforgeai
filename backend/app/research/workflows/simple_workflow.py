@@ -2,20 +2,20 @@ from __future__ import annotations
 
 from backend.app.ai.llms.models import (
     LLMRequest,
-    Message,
-    MessageRole,
     LLMResponse,
 )
+
 from backend.app.ai.llms.service import LLMService
+
 from backend.app.research.models.research_request import ResearchRequest
 from backend.app.research.workflows.base import ResearchWorkflow
 
 
 class SimpleResearchWorkflow(ResearchWorkflow):
     """
-    Simple workflow:
+    Simple workflow.
 
-    User
+    Conversation
         ↓
     LLM
         ↓
@@ -34,12 +34,10 @@ class SimpleResearchWorkflow(ResearchWorkflow):
     ) -> LLMResponse:
 
         llm_request = LLMRequest(
-            messages=[
-                Message(
-                    role=MessageRole.USER,
-                    content=request.query,
-                )
-            ]
+            messages=request.messages,
+            max_tokens=180,
         )
 
-        return await self._llm_service.invoke(llm_request)
+        return await self._llm_service.invoke(
+            llm_request,
+        )

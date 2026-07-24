@@ -1,12 +1,8 @@
 from fastapi import APIRouter, Depends
 
-from backend.app.api.schemas.chat import (
-    ChatRequest,
-    ChatResponse,
-)
+from backend.app.api.schemas.chat import ChatRequest, ChatResponse
+from backend.app.core.container import Container
 from backend.app.core.container.dependencies import get_container
-from backend.app.core.container.container import Container
-
 
 router = APIRouter(
     prefix="/chat",
@@ -21,9 +17,9 @@ async def chat(
 ) -> ChatResponse:
 
     result = await container.chat_service.chat(
-        request.message
+        request.messages,
     )
 
     return ChatResponse(
-        response=result.content
+        response=result.content,
     )
