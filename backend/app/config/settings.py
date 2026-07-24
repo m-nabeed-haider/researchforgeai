@@ -1,11 +1,17 @@
 from functools import lru_cache
 
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class Settings(BaseSettings):
-    """Application settings."""
+class LLMSettings(BaseModel):
+    provider: str
+    model: str
+    openai_api_key: str
+    gemini_api_key: str
 
+
+class Settings(BaseSettings):
     app_name: str = "ResearchForge AI"
     app_version: str = "0.1.0"
 
@@ -14,9 +20,11 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
 
+    llm: LLMSettings
+
     model_config = SettingsConfigDict(
         env_file=".env",
-        env_file_encoding="utf-8",
+        env_nested_delimiter="__",
         extra="ignore",
     )
 

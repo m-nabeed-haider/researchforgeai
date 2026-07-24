@@ -42,6 +42,9 @@ eval = []
 docs = []
 
 [dependency-groups]
+backend = [
+    "openai>=2.48.0",
+]
 
 dev = [
     "pytest",
