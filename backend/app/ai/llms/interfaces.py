@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from backend.app.llms.models import LLMRequest, LLMResponse
+from backend.app.ai.llms.models import LLMRequest, LLMResponse
 
 
 class BaseLLMProvider(ABC):

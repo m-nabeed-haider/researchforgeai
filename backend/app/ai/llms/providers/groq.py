@@ -7,13 +7,13 @@ from groq import AsyncGroq
 from groq import AuthenticationError as GroqAuthenticationError
 from groq import RateLimitError as GroqRateLimitError
 
-from backend.app.llms.exceptions import (
+from backend.app.ai.llms.exceptions import (
     AuthenticationError,
     LLMProviderError,
     RateLimitError,
 )
-from backend.app.llms.interfaces import BaseLLMProvider
-from backend.app.llms.models import (
+from backend.app.ai.llms.interfaces import BaseLLMProvider
+from backend.app.ai.llms.models import (
     FinishReason,
     LLMProviderType,
     LLMRequest,
@@ -74,19 +74,13 @@ class GroqProvider(BaseLLMProvider):
             )
 
         except GroqAuthenticationError as exc:
-            raise AuthenticationError(
-                "Groq authentication failed."
-            ) from exc
+            raise AuthenticationError("Groq authentication failed.") from exc
 
         except GroqRateLimitError as exc:
-            raise RateLimitError(
-                "Groq rate limit exceeded."
-            ) from exc
+            raise RateLimitError("Groq rate limit exceeded.") from exc
 
         except Exception as exc:
-            raise LLMProviderError(
-                f"Groq provider error: {exc}"
-            ) from exc
+            raise LLMProviderError(f"Groq provider error: {exc}") from exc
 
         latency_ms = (time.perf_counter() - start_time) * 1000
 

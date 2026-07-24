@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
 from backend.app.api.router import api_router
-from backend.app.config.settings import get_settings
-from backend.app.logging_config.logger import configure_logger
+from backend.app.core.config.settings import get_settings
+from backend.app.core.logging.logger import configure_logger
 
 
 def create_app() -> FastAPI:

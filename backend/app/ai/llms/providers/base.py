@@ -1,4 +1,4 @@
-from backend.app.llms.interfaces import BaseLLMProvider
+from backend.app.ai.llms.interfaces import BaseLLMProvider
 
 __all__ = [
     "BaseLLMProvider",

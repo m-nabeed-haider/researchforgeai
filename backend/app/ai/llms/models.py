@@ -33,6 +33,7 @@ class LLMProviderType(str, Enum):
     ANTHROPIC = "anthropic"
     OLLAMA = "ollama"
 
+
 class Message(BaseModel):
     role: MessageRole
     content: str

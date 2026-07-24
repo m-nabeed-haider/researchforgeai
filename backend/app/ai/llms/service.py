@@ -1,5 +1,5 @@
-from backend.app.llms.interfaces import BaseLLMProvider
-from backend.app.llms.models import LLMRequest, LLMResponse
+from backend.app.ai.llms.interfaces import BaseLLMProvider
+from backend.app.ai.llms.models import LLMRequest, LLMResponse
 
 
 class LLMService:
