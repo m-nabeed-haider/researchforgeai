@@ -1,37 +1,28 @@
 from __future__ import annotations
 
-from backend.app.ai.llms.models import (
-    LLMRequest,
-    LLMResponse,
-    Message,
-    MessageRole,
-)
-from backend.app.ai.llms.service import LLMService
+from backend.app.ai.llms.models import LLMResponse
+from backend.app.research.models.research_request import ResearchRequest
+from backend.app.research.workflows.base import ResearchWorkflow
 
 
 class ChatService:
     """
-    Application service for chat interactions.
+    Application service responsible for handling chat requests.
     """
 
     def __init__(
         self,
-        llm_service: LLMService,
+        workflow: ResearchWorkflow,
     ) -> None:
-        self._llm_service = llm_service
+        self._workflow = workflow
 
     async def chat(
         self,
         message: str,
     ) -> LLMResponse:
 
-        request = LLMRequest(
-            messages=[
-                Message(
-                    role=MessageRole.USER,
-                    content=message,
-                )
-            ]
+        request = ResearchRequest(
+            query=message,
         )
 
-        return await self._llm_service.invoke(request)
+        return await self._workflow.run(request)
