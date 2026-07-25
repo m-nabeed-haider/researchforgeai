@@ -44,6 +44,7 @@ docs = []
 [dependency-groups]
 backend = [
     "groq>=1.5.0",
+    "httpx>=0.28.1",
     "openai>=2.48.0",
     "tavily-python>=0.7.26",
 ]

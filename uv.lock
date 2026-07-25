@@ -1479,6 +1479,7 @@ frontend = [
 [package.dev-dependencies]
 backend = [
     { name = "groq" },
+    { name = "httpx" },
     { name = "openai" },
     { name = "tavily-python" },
 ]
@@ -1508,6 +1509,7 @@ provides-extras = ["backend", "frontend", "eval", "docs"]
 [package.metadata.requires-dev]
 backend = [
     { name = "groq", specifier = ">=1.5.0" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "openai", specifier = ">=2.48.0" },
     { name = "tavily-python", specifier = ">=0.7.26" },
 ]

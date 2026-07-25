@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from backend.app.research.state import ResearchState
+from backend.app.research.engine import ResearchState
 
 
 class ResearchWorkflow(ABC):

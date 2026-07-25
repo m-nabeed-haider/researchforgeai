@@ -23,12 +23,12 @@ class PromptBuilder:
         ).strip()
 
     def build(
-        self,
-        conversation: list[Message],
-        context: str | None = None,
-    ) -> list[Message]:
+    self,
+    messages: list[Message],
+    context: str | None = None,
+) -> list[Message]:
 
-        messages = [
+        prompt_messages = [
             Message(
                 role=MessageRole.SYSTEM,
                 content=self._system_prompt,
@@ -37,7 +37,7 @@ class PromptBuilder:
 
         if context:
 
-            messages.append(
+            prompt_messages.append(
                 Message(
                     role=MessageRole.SYSTEM,
                     content=(
@@ -53,6 +53,6 @@ class PromptBuilder:
                 )
             )
 
-        messages.extend(conversation)
+        prompt_messages.extend(messages)
 
-        return messages
+        return prompt_messages

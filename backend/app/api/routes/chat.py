@@ -32,17 +32,17 @@ async def chat(
     ),
 ) -> ChatResponse:
 
-    response, results = await container.chat_service.chat(
-        request.messages,
-    )
+    result = await container.chat_service.chat(
+    request.messages,
+)
 
     return ChatResponse(
-        response=response.content,
+        response=result.response.content,
         sources=[
             ChatSource(
-                name=result.source,
-                url=result.url,
+                name=source.source,
+                url=source.url,
             )
-            for result in results
+            for source in result.sources
         ],
     )

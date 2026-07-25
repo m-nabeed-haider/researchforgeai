@@ -1,22 +1,36 @@
+from __future__ import annotations
+
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from backend.app.api.router import api_router
-from backend.app.core.config.settings import get_settings
-from backend.app.core.logging.logger import configure_logger
+from backend.app.core.container import Container
+
+
+@asynccontextmanager
+async def lifespan(
+    app: FastAPI,
+):
+
+    container = Container()
+
+    app.state.container = container
+
+    yield
+
+    await container.close()
 
 
 def create_app() -> FastAPI:
-    """Create and configure the FastAPI application."""
-
-    configure_logger()
-
-    settings = get_settings()
 
     app = FastAPI(
-        title=settings.app_name,
-        version=settings.app_version,
+        title="ResearchForge AI",
+        lifespan=lifespan,
     )
 
-    app.include_router(api_router)
+    app.include_router(
+        api_router,
+    )
 
     return app

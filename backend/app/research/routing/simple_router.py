@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from backend.app.research.routing.base import ResearchRouter
-from backend.app.research.routing.models import ResearchStrategy
-from backend.app.research.state import ResearchState
+from backend.app.research.models import ResearchStrategy
+from backend.app.research.engine import ResearchState
 
 
 SEARCH_KEYWORDS = {
