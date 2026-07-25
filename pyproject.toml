@@ -45,6 +45,7 @@ docs = []
 backend = [
     "groq>=1.5.0",
     "openai>=2.48.0",
+    "tavily-python>=0.7.26",
 ]
 
 dev = [

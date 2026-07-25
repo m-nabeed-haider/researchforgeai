@@ -9,13 +9,21 @@ from backend.app.core.config.settings import (
     Settings,
     get_settings,
 )
+from backend.app.research.routing import (
+    LLMResearchRouter,
+)
 
 from backend.app.research.services.chat_service import ChatService
 from backend.app.research.workflows.simple_workflow import (
     SimpleResearchWorkflow,
 )
+from pathlib import Path
 
+from backend.app.ai.prompts import PromptBuilder
+from tavily import AsyncTavilyClient
 
+from backend.app.ai.search import SearchService
+from backend.app.ai.search.providers import TavilyProvider
 class Container:
     """
     Application dependency container.
@@ -35,7 +43,10 @@ class Container:
         self._research_workflow: SimpleResearchWorkflow | None = None
 
         self._chat_service: ChatService | None = None
-
+        self._prompt_builder: PromptBuilder | None = None
+        self._tavily_provider: TavilyProvider | None = None
+        self._search_service: SearchService | None = None
+        self._router: LLMResearchRouter | None = None
     @property
     def settings(self) -> Settings:
         if self._settings is None:
@@ -76,6 +87,9 @@ class Container:
         if self._research_workflow is None:
             self._research_workflow = SimpleResearchWorkflow(
                 llm_service=self.llm_service,
+                prompt_builder=self.prompt_builder,
+                search_service=self.search_service,
+                router=self.router,
             )
 
         return self._research_workflow
@@ -88,3 +102,50 @@ class Container:
             )
 
         return self._chat_service
+    @property
+    def prompt_builder(self) -> PromptBuilder:
+
+        if self._prompt_builder is None:
+
+            self._prompt_builder = PromptBuilder(
+                Path("backend/app/ai/prompts/system.md"),
+            )
+
+        return self._prompt_builder
+    @property
+    def tavily_provider(self) -> TavilyProvider:
+
+        if self._tavily_provider is None:
+
+            client = AsyncTavilyClient(
+                api_key=self.settings.tavily_api_key,
+            )
+
+            self._tavily_provider = TavilyProvider(
+                client=client,
+            )
+
+        return self._tavily_provider
+    @property
+    def search_service(self) -> SearchService:
+
+        if self._search_service is None:
+
+            self._search_service = SearchService(
+                provider=self.tavily_provider,
+            )
+
+        return self._search_service
+    @property
+    def router(self) -> LLMResearchRouter:
+
+        if self._router is None:
+
+            self._router = LLMResearchRouter(
+                llm_service=self.llm_service,
+                prompt_path=Path(
+                    "backend/app/research/routing/prompt.md",
+                ),
+            )
+
+        return self._router

@@ -2,20 +2,18 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
+from backend.app.research.routing.models import ResearchStrategy
 from backend.app.research.state import ResearchState
 
 
-class ResearchWorkflow(ABC):
+class ResearchRouter(ABC):
     """
-    Base interface for all research workflows.
+    Determines how a request should be executed.
     """
 
     @abstractmethod
-    async def run(
+    async def route(
         self,
         state: ResearchState,
-    ) -> ResearchState:
-        """
-        Execute the workflow.
-        """
+    ) -> ResearchStrategy:
         raise NotImplementedError

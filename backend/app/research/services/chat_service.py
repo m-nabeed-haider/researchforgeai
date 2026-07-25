@@ -1,32 +1,50 @@
 from __future__ import annotations
 
+from backend.app.research.state import ResearchState
+from backend.app.research.workflows.base import ResearchWorkflow
+
 from backend.app.ai.llms.models import (
     LLMResponse,
     Message,
 )
 
-from backend.app.research.models.research_request import ResearchRequest
-from backend.app.research.workflows.base import ResearchWorkflow
+from backend.app.ai.search.models import SearchResult
 
 
 class ChatService:
     """
-    Application service responsible for chat requests.
+    Coordinates chat requests.
     """
 
     def __init__(
         self,
         workflow: ResearchWorkflow,
     ) -> None:
+
         self._workflow = workflow
 
     async def chat(
         self,
         messages: list[Message],
-    ) -> LLMResponse:
+    ) -> tuple[
+        LLMResponse,
+        list[SearchResult],
+    ]:
 
-        request = ResearchRequest(
+        state = ResearchState(
             messages=messages,
         )
 
-        return await self._workflow.run(request)
+        state = await self._workflow.run(
+            state,
+        )
+
+        results = []
+
+        if state.search_results is not None:
+            results = state.search_results.results
+
+        return (
+            state.response,
+            results,
+        )

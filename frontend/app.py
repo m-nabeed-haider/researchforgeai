@@ -16,11 +16,33 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.write(message["content"])
+
+    with st.chat_message(
+        message["role"],
+    ):
+
+        st.write(
+            message["content"],
+        )
+
+        if (
+            message["role"] == "assistant"
+            and "sources" in message
+            and message["sources"]
+        ):
+
+            with st.expander(
+                "Sources",
+            ):
+
+                for source in message["sources"]:
+
+                    st.markdown(
+                        f"- [{source['name']}]({source['url']})"
+                    )
 
 prompt = st.chat_input(
-    "Ask ResearchForge..."
+    "Ask ResearchForge...",
 )
 
 if prompt:
@@ -32,20 +54,41 @@ if prompt:
         }
     )
 
-    with st.chat_message("user"):
-        st.write(prompt)
+    with st.chat_message(
+        "user",
+    ):
+        st.write(
+            prompt,
+        )
 
-    with st.chat_message("assistant"):
+    with st.chat_message(
+        "assistant",
+    ):
 
-        response = client.chat(
+        result = client.chat(
             st.session_state.messages,
         )
 
-        st.write(response)
+        st.write(
+            result["response"],
+        )
+
+        if result["sources"]:
+
+            with st.expander(
+                "Sources",
+            ):
+
+                for source in result["sources"]:
+
+                    st.markdown(
+                        f"- [{source['name']}]({source['url']})"
+                    )
 
     st.session_state.messages.append(
         {
             "role": "assistant",
-            "content": response,
+            "content": result["response"],
+            "sources": result["sources"],
         }
     )
