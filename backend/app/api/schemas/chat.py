@@ -4,7 +4,8 @@ from backend.app.ai.llms.models import Message
 
 
 class ChatRequest(BaseModel):
-    messages: list[Message]
+    session_id: str
+    message: Message
 
 
 class ChatSource(BaseModel):

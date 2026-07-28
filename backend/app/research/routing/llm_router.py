@@ -16,7 +16,7 @@ from backend.app.research.engine import ResearchState
 
 class LLMResearchRouter(ResearchRouter):
     """
-    Uses the LLM to decide which strategy should be used.
+    Uses the LLM to decide whether external research is required.
     """
 
     def __init__(
@@ -38,6 +38,32 @@ class LLMResearchRouter(ResearchRouter):
 
         latest_message = state.messages[-1].content
 
+        summary = "None"
+
+        if (
+            state.summary is not None
+            and state.summary.summary
+        ):
+            summary = state.summary.summary
+
+        routing_input = f"""
+Conversation Summary
+====================
+
+{summary}
+
+Latest User Message
+===================
+
+{latest_message}
+""".strip()
+
+        # Debug (remove later)
+        print("=" * 80)
+        print("ROUTER INPUT")
+        print(routing_input)
+        print("=" * 80)
+
         response = await self._llm_service.invoke(
             LLMRequest(
                 messages=[
@@ -47,7 +73,7 @@ class LLMResearchRouter(ResearchRouter):
                     ),
                     Message(
                         role=MessageRole.USER,
-                        content=latest_message,
+                        content=routing_input,
                     ),
                 ],
                 temperature=0.0,
@@ -56,6 +82,8 @@ class LLMResearchRouter(ResearchRouter):
         )
 
         decision = response.content.strip().upper()
+
+        print(f"ROUTER DECISION: {decision}")
 
         if "WEB_SEARCH" in decision:
             return ResearchStrategy.WEB_SEARCH

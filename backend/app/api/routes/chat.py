@@ -33,8 +33,9 @@ async def chat(
 ) -> ChatResponse:
 
     result = await container.chat_service.chat(
-    request.messages,
-)
+        session_id=request.session_id,
+        messages=[request.message],
+    )
 
     return ChatResponse(
         response=result.response.content,

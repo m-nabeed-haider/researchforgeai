@@ -1,58 +1,50 @@
 from __future__ import annotations
 
-from pathlib import Path
-
-from backend.app.ai.llms.models import (
-    Message,
-    MessageRole,
-)
+from backend.app.ai.llms.models import Message
+from backend.app.ai.prompts.prefix_builder import PrefixBuilder
+from backend.app.ai.prompts.suffix_builder import SuffixBuilder
+from backend.app.ai.cache.service import PromptCacheService
 
 
 class PromptBuilder:
     """
-    Builds the final prompt sent to the LLM.
+    Orchestrates prompt construction.
+
+    - Builds the cacheable prefix.
+    - Retrieves/stores it in the prompt cache.
+    - Builds the dynamic suffix.
     """
 
     def __init__(
         self,
-        system_prompt_path: Path,
+        prefix_builder: PrefixBuilder,
+        suffix_builder: SuffixBuilder,
+        prompt_cache: PromptCacheService,
     ) -> None:
 
-        self._system_prompt = system_prompt_path.read_text(
-            encoding="utf-8",
-        ).strip()
+        self._prefix_builder = prefix_builder
+        self._suffix_builder = suffix_builder
+        self._prompt_cache = prompt_cache
 
-    def build(
-    self,
-    messages: list[Message],
-    context: str | None = None,
-) -> list[Message]:
+    async def build(
+        self,
+        messages: list[Message],
+        context: str | None = None,
+        summary: str = "",
+    ) -> list[Message]:
 
-        prompt_messages = [
-            Message(
-                role=MessageRole.SYSTEM,
-                content=self._system_prompt,
-            )
-        ]
+        prefix = self._prefix_builder.build(
+            summary=summary,
+            context=context,
+        )
 
-        if context:
+        prefix = await self._prompt_cache.get_or_create(
+            prefix,
+        )
 
-            prompt_messages.append(
-                Message(
-                    role=MessageRole.SYSTEM,
-                    content=(
-                        "Research Context\n"
-                        "================\n\n"
-                        f"{context}\n\n"
-                        "Instructions:\n"
-                        "- Prefer the supplied sources when answering.\n"
-                        "- If the sources are insufficient, say so.\n"
-                        "- Do not fabricate information.\n"
-                        "- Keep the answer concise."
-                    ),
-                )
-            )
+        
+        suffix = self._suffix_builder.build(
+            messages,
+        )
 
-        prompt_messages.extend(messages)
-
-        return prompt_messages
+        return prefix + suffix

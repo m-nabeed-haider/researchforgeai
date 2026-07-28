@@ -8,8 +8,8 @@ from backend.app.ai.llms.models import (
 )
 
 from backend.app.ai.search.models import SearchResponse
-
-
+from backend.app.research.memory.models import ConversationMemory
+from backend.app.research.summary import ConversationSummary
 class ResearchState(BaseModel):
     """
     Shared state passed through the research workflow.
@@ -24,3 +24,5 @@ class ResearchState(BaseModel):
     context: str = ""
 
     response: LLMResponse | None = None
+    memory: ConversationMemory | None = None
+    summary: ConversationSummary | None = None

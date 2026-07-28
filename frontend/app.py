@@ -1,7 +1,8 @@
 import streamlit as st
 
 from api.client import BackendClient
-
+import uuid
+import inspect
 
 st.set_page_config(
     page_title="ResearchForge AI",
@@ -11,7 +12,9 @@ st.set_page_config(
 st.title("🔬 ResearchForge AI")
 
 client = BackendClient()
-
+print(inspect.signature(BackendClient.chat))
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid.uuid4())
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -66,8 +69,12 @@ if prompt:
     ):
 
         result = client.chat(
-            st.session_state.messages,
-        )
+    session_id=st.session_state.session_id,
+    message={
+        "role": "user",
+        "content": prompt,
+    },
+)
 
         st.write(
             result["response"],

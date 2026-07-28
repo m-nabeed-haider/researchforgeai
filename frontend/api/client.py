@@ -11,17 +11,22 @@ class BackendClient:
         self.base_url = base_url
 
     def chat(
-        self,
-        messages: list[dict],
-    ) -> dict:
+    self,
+    session_id: str,
+    message: dict,
+) -> dict:
 
         response = requests.post(
             f"{self.base_url}/chat",
             json={
-                "messages": messages,
+                "session_id": session_id,
+                "message": message,
             },
             timeout=60,
         )
+
+        print("Status:", response.status_code)
+        print("Response:", response.text)
 
         response.raise_for_status()
 

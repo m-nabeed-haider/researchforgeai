@@ -42,6 +42,7 @@ class Settings(BaseSettings):
     tavily_api_key: str = ""
     jina_reranker_model: str = "jina-reranker-v2-base-multilingual"
     jina_base_url: str = "https://api.jina.ai/v1"
+    memory_max_messages: int = 10
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

@@ -6,7 +6,7 @@ from tavily import AsyncTavilyClient
 
 from backend.app.ai.llms.providers.groq import GroqProvider
 from backend.app.ai.llms.service import LLMService
-from backend.app.ai.prompts import PromptBuilder
+from backend.app.ai.prompts import PromptBuilder,PrefixBuilder,SuffixBuilder
 from backend.app.ai.search import SearchService
 from backend.app.ai.search.providers import TavilyProvider
 from backend.app.ai.search.ranking import (
@@ -27,7 +27,17 @@ from backend.app.research.engine.simple_workflow import (
 from backend.app.ai.search.formatting import (
     SearchContextFormatter,
 )
-
+from backend.app.research.memory import (
+    InMemoryMemoryRepository,
+    MemoryService,
+)
+from backend.app.research.cache import (
+    InMemoryResearchCacheRepository,
+    ResearchCacheMatcher,
+    ResearchCacheService,
+)
+from backend.app.ai.cache import InMemoryPromptCacheRepository,PromptCacheService
+from backend.app.research.summary import InMemorySummaryRepository,SummaryService,ConversationSummarizer
 class Container:
     """
     Application dependency container.
@@ -63,10 +73,27 @@ class Container:
         # Research
         self._router: LLMResearchRouter | None = None
         self._research_workflow: SimpleResearchWorkflow | None = None
-
+        # Memory
+        self._memory_repository: InMemoryMemoryRepository | None = None
+        self._memory_service: MemoryService | None = None
         # Application services
         self._chat_service: ChatService | None = None
 
+        # Summary
+        
+        self._summary_repository: InMemorySummaryRepository | None = None
+        self._summary_service: SummaryService | None = None
+        self._conversation_summarizer: ConversationSummarizer | None = None
+        #Cache
+        
+        self._cache_repository: InMemoryResearchCacheRepository | None = None
+        self._cache_matcher: ResearchCacheMatcher | None = None
+        self._cache_service: ResearchCacheService | None = None
+
+        self._prompt_cache_repository: InMemoryPromptCacheRepository | None = None
+        self._prompt_cache_service: PromptCacheService | None = None
+        self._prefix_builder: PrefixBuilder | None = None
+        self._suffix_builder: SuffixBuilder | None = None        
     # -------------------------
     # Configuration
     # -------------------------
@@ -147,9 +174,9 @@ class Container:
 
         if self._prompt_builder is None:
             self._prompt_builder = PromptBuilder(
-                Path(
-                    "backend/app/ai/prompts/system.md",
-                ),
+                prefix_builder=self.prefix_builder,
+                suffix_builder=self.suffix_builder,
+                prompt_cache=self.prompt_cache_service,
             )
 
         return self._prompt_builder
@@ -232,6 +259,7 @@ class Container:
                 search_ranking_service=self.search_ranking_service,
                 router=self.router,
                 context_formatter=self.context_formatter,
+                cache_service=self.cache_service,
             )
 
         return self._research_workflow
@@ -246,10 +274,12 @@ class Container:
         if self._chat_service is None:
             self._chat_service = ChatService(
                 workflow=self.research_workflow,
+                memory_service=self.memory_service,
+                 summary_service=self.summary_service,
+                summarizer=self.conversation_summarizer,
             )
 
         return self._chat_service
-    @property
     async def close(self) -> None:
         """
         Release managed resources.
@@ -264,3 +294,116 @@ class Container:
             self._context_formatter = SearchContextFormatter()
 
         return self._context_formatter
+
+    @property
+    def memory_repository(self) -> InMemoryMemoryRepository:
+
+        if self._memory_repository is None:
+            self._memory_repository = InMemoryMemoryRepository()
+
+        return self._memory_repository
+
+
+    @property
+    def memory_service(self) -> MemoryService:
+
+        if self._memory_service is None:
+            self._memory_service = MemoryService(
+                repository=self.memory_repository,
+            )
+
+        return self._memory_service
+
+    @property
+    def summary_repository(self) -> InMemorySummaryRepository:
+
+        if self._summary_repository is None:
+            self._summary_repository = InMemorySummaryRepository()
+
+        return self._summary_repository
+
+    @property
+    def summary_service(self) -> SummaryService:
+
+        if self._summary_service is None:
+            self._summary_service = SummaryService(
+                repository=self.summary_repository,
+            )
+
+        return self._summary_service
+
+    @property
+    def conversation_summarizer(self) -> ConversationSummarizer:
+
+        if self._conversation_summarizer is None:
+            self._conversation_summarizer = ConversationSummarizer(
+                llm_service=self.llm_service,
+            )
+
+        return self._conversation_summarizer
+
+    @property
+    def cache_repository(
+        self,
+    ) -> InMemoryResearchCacheRepository:
+
+        if self._cache_repository is None:
+            self._cache_repository = InMemoryResearchCacheRepository()
+
+        return self._cache_repository
+
+    @property
+    def cache_matcher(
+        self,
+    ) -> ResearchCacheMatcher:
+
+        if self._cache_matcher is None:
+            self._cache_matcher = ResearchCacheMatcher()
+
+        return self._cache_matcher
+
+    
+    @property
+    def cache_service(
+        self,
+    ) -> ResearchCacheService:
+
+        if self._cache_service is None:
+            self._cache_service = ResearchCacheService(
+                repository=self.cache_repository,
+                matcher=self.cache_matcher,
+            )
+
+        return self._cache_service
+    @property
+    def prompt_cache_repository(self) -> InMemoryPromptCacheRepository:
+
+        if self._prompt_cache_repository is None:
+            self._prompt_cache_repository = InMemoryPromptCacheRepository()
+
+        return self._prompt_cache_repository
+
+    @property
+    def prompt_cache_service(self) -> PromptCacheService:
+
+        if self._prompt_cache_service is None:
+            self._prompt_cache_service = PromptCacheService(
+                repository=self.prompt_cache_repository,
+            )
+
+        return self._prompt_cache_service
+
+    @property
+    def prefix_builder(self) -> PrefixBuilder:
+        if self._prefix_builder is None:
+            self._prefix_builder = PrefixBuilder(
+                Path("backend/app/ai/prompts/system.md")
+            )
+        return self._prefix_builder
+
+
+    @property
+    def suffix_builder(self) -> SuffixBuilder:
+        if self._suffix_builder is None:
+            self._suffix_builder = SuffixBuilder()
+        return self._suffix_builder
